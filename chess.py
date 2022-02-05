@@ -34,7 +34,10 @@ class Piece(pygame.sprite.Sprite):
     def __init__(self,piecetype,position):
         """ Constructor. Pass in the color of the piece"""
         super().__init__()
-
+        
+        self.piecetype = piecetype
+        self.position = position
+        
         # Load All chess pieces into PIECES
         # K Q B N R
         # k q b n r
@@ -47,6 +50,7 @@ class Piece(pygame.sprite.Sprite):
                 if piecetype == PIECES[j + i*6]:
                     SURF = pygame.Surface.subsurface(SPRITE, (j*SQW, i*SQW, SQW, SQW))
                     self.image = SURF
+        
         self.rect = self.image.get_rect()
         self.rect.x = 100 + (position % 8) * SQW
         self.rect.y = 100 + (position // 8) * SQW
