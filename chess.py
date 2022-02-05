@@ -47,8 +47,9 @@ class Piece(pygame.sprite.Sprite):
                 if piecetype == PIECES[j + i*6]:
                     SURF = pygame.Surface.subsurface(SPRITE, (j*SQW, i*SQW, SQW, SQW))
                     self.image = SURF
-        
         self.rect = self.image.get_rect()
+        self.rect.x = 100 + (position % 8) * SQW
+        self.rect.y = 100 + (position // 8) * SQW
 
 def main():
     WHITE = (255,255,255)
@@ -74,27 +75,19 @@ def main():
 
     Rematch = True
     
+    all_sprites_list = setup_board(starting_board)
+    
+    
     while Rematch:
         
-        all_sprites_list = setup_board(starting_board)
-        all_sprites_list.draw(screen)
-        
-        # Pieces = Piece('q',0) # This represents a piece that AI is about to place
-        # # Set the piece location
-        # Pieces.rect.x = 500
-        # Pieces.rect.y = 500
-        # all_sprites_list.add(Pieces)
         all_sprites_list.draw(screen)
         pygame.display.flip()
-        
-        
 
         for event in pygame.event.get():
             if (event.type == pygame.QUIT) | (pygame.key.get_pressed()[K_ESCAPE]):
                 Rematch = False
         
         
-
     #Exit pygame incase Escape is pressed or pragram stopped
     pygame.quit()
 
