@@ -103,15 +103,16 @@ def mouse_pos_to_square(mp):
         return ((y-100) // SQW * 8 + (x-100) // SQW)
 
     
-def draw_chess_board_on_screen(game_screen,bg_color,white_square_color,dark_square_color):
+def draw_chess_board_on_screen(game_screen,bg_color,white_square_color,dark_square_color,possible_moves_list):
     game_screen.fill(bg_color)
     pygame.draw.rect(game_screen,dark_square_color,(100,100,600,600))
     #Draw the chess board
     for i in range(0,8):
         for j in range(0,8):
-            if (i+j) % 2 == 0:
+            if i+j*8 in possible_moves_list:
+                pygame.draw.rect(game_screen,(white_square_color[0],50,50),(100+SQW*i,100+SQW*j,SQW,SQW))
+            elif (i+j) % 2 == 0:
                 pygame.draw.rect(game_screen,white_square_color,(100+SQW*i,100+SQW*j,SQW,SQW))
-    
 
         
 def main():
@@ -125,7 +126,7 @@ def main():
     pygame.init()
 
     screen = pygame.display.set_mode((1200,800))
-    draw_chess_board_on_screen(screen,WHITE,LIGHT,DARK)
+    draw_chess_board_on_screen(screen,WHITE,LIGHT,DARK,possible_moves)
     
     # This is a list of every sprite including the mouse spirite
     all_sprites_list = pygame.sprite.Group()
@@ -156,7 +157,7 @@ def main():
                 mouse_pos = mouse_pos_to_square(pygame.mouse.get_pos())
                 possible_moves = get_possible_moves(mouse_pos,setup_board(starting_board)[1])
 
-                draw_chess_board_on_screen(screen,WHITE,LIGHT,DARK) #Draw the board
+                draw_chess_board_on_screen(screen,WHITE,LIGHT,DARK,possible_moves) #Draw the board
                 pygame.display.update(all_sprites_list.draw(screen)) #draw all the pieces
                 
                 textsurface = myfont.render('Mouse Position: {}'.format(mouse_pos), False, BLACK)
