@@ -7,7 +7,7 @@ pieces_file = './Files/Pieces.png' #file with image of pieces
 SQW = 75 #Square width
 
 #FEN Notation: https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
-starting_board = 'r2q1rk1/pp2ppbp/2p2np1/6B1/3PP1b1/Q1P2N2/P4PPP/3RKB1R b K - 0 13'#'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+starting_board = 'r2q1rk1/pp2ppbp/5np1/1Ppp2B1/3PP1b1/Q1P2N2/P4PPP/3RKB1R b K c6 0 13'#'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
 def setup_board(fen_string):
     """
@@ -47,28 +47,23 @@ def get_possible_moves(position,board,en_passant=None):
     bishop_moves = [(1,1),(1,-1),(-1,1),(-1,-1)]
     queen_moves = [(0,1),(0,-1),(1,0),(-1,0),(1,1),(1,-1),(-1,1),(-1,-1)]
     
-    if board[position] == 'P':
-        if (position // 8 == 6) and board[position-8]== None and board[position-16]== None: #The white pawn is in the second rank and there are no pieces on the third or forth rank in front of the pawn
-            possible_moves.extend([position-8 , position-16]) #pawn can jump either one or two squares
-        elif board[position-8]== None:
-            possible_moves.append(position-8)
-        if position % 8 < 7 and ( board[position-7] in ['k','q','b','n','r','p'] or position-7 == en_passant): #if there is an opposite piece in the right side diagonal, then the pawn can capture them
-            possible_moves.append(position-7)
-            controlled_squares.append(position-7)
-        if position % 8 > 0  and ( board[position-9] in ['k','q','b','n','r','p'] or position-9 == en_passant): #if there is an opposite piece in the left side diagonal, then the pawn can capture them
-            possible_moves.append(position-9)
-            controlled_squares.append(position-9)
-    elif board[position] == 'p':
-        if (position // 8 == 1) and board[position+8]== None and board[position+16]== None: #The white pawn is in the second rank and there are no pieces on the third or forth rank in front of the pawn
-            possible_moves.extend([position+8 , position+16]) #pawn can jump either one or two squares
-        elif board[position+8]== None:
-            possible_moves.append(position+8)
-        if position % 8 < 7 and ( board[position+9] in ['K','Q','B','N','R','P'] or position+9 == en_passant): #if there is an opposite piece in the right side diagonal, then the pawn can capture them
-            possible_moves.append(position+9)
-            controlled_squares.append(position+9)
-        if position % 8 > 0  and ( board[position+7] in ['K','Q','B','N','R','P'] or position+7 == en_passant): #if there is an opposite piece in the left side diagonal, then the pawn can capture them
-            possible_moves.append(position+7)
-            controlled_squares.append(position+7)
+    if board[position] in ['P','p']:
+        #Diagonally taking // controlling space
+        for i in range(0,2): #indicates each of moves/control for each pawn
+            if (x + pawn_moves[board[position]]['control'][i][0] >= 0 and x + pawn_moves[board[position]]['control'][i][0] <= 7 and y + pawn_moves[board[position]]['control'][i][1] >= 0 and y + pawn_moves[board[position]]['control'][i][1] <= 7):
+                controlled_squares.append((y + pawn_moves[board[position]]['control'][i][1])*8 + x + pawn_moves[board[position]]['control'][i][0])
+                if board[(y + pawn_moves[board[position]]['control'][i][1])*8 + x + pawn_moves[board[position]]['control'][i][0]] != None: #check if there is a piece diagonally in front of the pawn
+                    if board[(y + pawn_moves[board[position]]['control'][i][1])*8 + x + pawn_moves[board[position]]['control'][i][0]].isupper() != board[position].isupper(): #make sure it is the opposite color
+                        possible_moves.append((y + pawn_moves[board[position]]['control'][i][1])*8 + x + pawn_moves[board[position]]['control'][i][0])
+                elif (y + pawn_moves[board[position]]['control'][i][1])*8 + x + pawn_moves[board[position]]['control'][i][0] == en_passant and (board[position]=='P' and en_passant//8==2 or board[position]=='p' and en_passant//8==5): #The pawn can attack an en passant square and it is the right side. Back attacking rank 3 and white attacking rank 6
+                        possible_moves.append(en_passant)
+        #Moving ahead
+        for i in range(0,2): #indicates each of moves/control for each pawn
+
+            if board[(y + pawn_moves[board[position]]['move'][i][1])*8 + x + pawn_moves[board[position]]['move'][i][0]]== None and (i==0 or i==1 and (board[position]=='p' and y==1 or board[position]=='P' and y==6)):
+                possible_moves.append((y + pawn_moves[board[position]]['move'][i][1])*8 + x + pawn_moves[board[position]]['move'][i][0])
+            else:
+                break #if first position for pawn is taken then it will not check the second square
     elif board[position] in ['N','n']:
         for i in knight_moves:
             if (x + i[0] >= 0 and x + i[0] <= 7 and y + i[1] >= 0 and y + i[1] <= 7) and (board[(y + i[1])*8 + x + i[0]]== None or board[position].isupper() != board[(y + i[1])*8 + x + i[0]].isupper()): #first making sure that the move is within the board and the target position is either empty or is taken by the opposite color
