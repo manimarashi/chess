@@ -41,6 +41,9 @@ def get_possible_moves(position,board,en_passant=None):
     x = position %  8
     y = position // 8
     knight_moves = [(1,-2),(2,-1),(2,1),(1,2),(-1,2),(-2,1),(-2,-1),(-1,-2)]
+    rook_moves = [(0,1),(0,-1),(1,0),(-1,0)]
+    bishop_moves = [(1,1),(1,-1),(-1,1),(-1,-1)]
+    queen_moves = [(0,1),(0,-1),(1,0),(-1,0),(1,1),(1,-1),(-1,1),(-1,-1)]
     
     if board[position] == 'P':
         if (position // 8 == 6) and board[position-8]== None and board[position-16]== None: #The white pawn is in the second rank and there are no pieces on the third or forth rank in front of the pawn
@@ -64,6 +67,42 @@ def get_possible_moves(position,board,en_passant=None):
         for i in knight_moves:
             if (x + i[0] >= 0 and x + i[0] <= 7 and y + i[1] >= 0 and y + i[1] <= 7) and (board[(y + i[1])*8 + x + i[0]]== None or board[position].isupper() != board[(y + i[1])*8 + x + i[0]].isupper()): #first making sure that the move is within the board and the target position is either empty or is taken by the opposite color
                 possible_moves.append( (y + i[1])*8 + x+i[0])
+    elif board[position] in ['R','r']:
+        for i in rook_moves:
+            for j in range(1,8):
+                if (x + i[0]*j >= 0 and x + i[0]*j <= 7 and y + i[1]*j >= 0 and y + i[1]*j <= 7) and (board[(y + i[1]*j)*8 + x + i[0]*j]== None):
+                    possible_moves.append((y + i[1]*j)*8 + x+i[0]*j)
+                elif (x + i[0]*j >= 0 and x + i[0]*j <= 7 and y + i[1]*j >= 0 and y + i[1]*j <= 7) and (board[position].isupper() != board[(y + i[1]*j)*8 + x + i[0]*j].isupper()):
+                    possible_moves.append((y + i[1]*j)*8 + x+i[0]*j)
+                    break
+                else:
+                    break
+    elif board[position] in ['b','B']:
+        for i in bishop_moves:
+            for j in range(1,8):
+                if (x + i[0]*j >= 0 and x + i[0]*j <= 7 and y + i[1]*j >= 0 and y + i[1]*j <= 7) and (board[(y + i[1]*j)*8 + x + i[0]*j]== None):
+                    possible_moves.append((y + i[1]*j)*8 + x+i[0]*j)
+                elif (x + i[0]*j >= 0 and x + i[0]*j <= 7 and y + i[1]*j >= 0 and y + i[1]*j <= 7) and (board[position].isupper() != board[(y + i[1]*j)*8 + x + i[0]*j].isupper()):
+                    possible_moves.append((y + i[1]*j)*8 + x+i[0]*j)
+                    break
+                else:
+                    break               
+    elif board[position] in ['q','Q']:
+        for i in queen_moves:
+            for j in range(1,8):
+                if (x + i[0]*j >= 0 and x + i[0]*j <= 7 and y + i[1]*j >= 0 and y + i[1]*j <= 7) and (board[(y + i[1]*j)*8 + x + i[0]*j]== None):
+                    possible_moves.append((y + i[1]*j)*8 + x+i[0]*j)
+                elif (x + i[0]*j >= 0 and x + i[0]*j <= 7 and y + i[1]*j >= 0 and y + i[1]*j <= 7) and (board[position].isupper() != board[(y + i[1]*j)*8 + x + i[0]*j].isupper()):
+                    possible_moves.append((y + i[1]*j)*8 + x+i[0]*j)
+                    break
+                else:
+                    break         
+    elif board[position] in ['k','K']:
+        for i in queen_moves:
+            if (x + i[0] >= 0 and x + i[0] <= 7 and y + i[1] >= 0 and y + i[1] <= 7) and (board[(y + i[1])*8 + x + i[0]]== None):
+                possible_moves.append((y + i[1])*8 + x+i[0])
+            elif (x + i[0] >= 0 and x + i[0] <= 7 and y + i[1] >= 0 and y + i[1] <= 7) and (board[position].isupper() != board[(y + i[1])*8 + x + i[0]].isupper()):
+                possible_moves.append((y + i[1])*8 + x+i[0])        
 
     return(possible_moves)
 
@@ -132,7 +171,7 @@ def main():
     all_sprites_list = pygame.sprite.Group()
     
     pygame.font.init() # you have to call this at the start, if you want to use this module.
-    myfont = pygame.font.SysFont('Comic Sans MS', 30)
+    myfont = pygame.font.SysFont('Comic Sans MS', 20)
     
     Rematch = True
     
