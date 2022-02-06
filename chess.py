@@ -5,6 +5,8 @@ from pygame.locals import *
 
 pieces_file = './Files/Pieces.png' #file with image of pieces
 SQW = 75 #Square width
+RANKS = {'a':0,'b':1,'c':2,'d':3,'e':4,'f':5,'g':6,'h':7}
+
 
 #FEN Notation: https://en.wikipedia.org/wiki/Forsyth%E2%80%93Edwards_Notation
 starting_board = 'r2q1rk1/pp2ppbp/5np1/1Ppp2B1/3PP1b1/Q1P2N2/P4PPP/3RKB1R b K c6 0 13'#'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
@@ -13,14 +15,14 @@ def setup_board(fen_string):
     """
     This will create spirites and places them in their appropriate location based on the FEN string 
     """
+    parts = starting_board.split(' ')
+    (fen_string, turn, castle, enpassant, n1, n2)  = (* parts,)
     spirit_group = pygame.sprite.Group()
     i = 0
     board_list = [None]*64 #creates a list that captures current board status
     for p in fen_string:
         if p == '/':
             continue
-        elif p == ' ':
-            break
         elif p.isdigit():
             i += int(p)
         else:
@@ -28,7 +30,13 @@ def setup_board(fen_string):
             Pieces = Piece(p,i)
             spirit_group.add(Pieces)
             i += 1
-    return(spirit_group,board_list)
+    
+    if enpassant != '-':
+        enpassant = RANKS[enpassant[0]]*8 + 8 - int(enpassant[1])
+    else:
+        enpassant = 0
+    
+    return(spirit_group,board_list,enpassant,turn,castle)
 
 
 def get_possible_moves(position,board,en_passant=None):
@@ -185,8 +193,9 @@ def main():
     
     Rematch = True
     
-    all_sprites_list = setup_board(starting_board)[0]
+    (all_sprites_list,current_board,current_enpassant,current_turn,current_castle)  = setup_board(starting_board)
     pygame.display.update(all_sprites_list.draw(screen))
+
     
     while Rematch:
         pygame.display.flip()
@@ -204,7 +213,7 @@ def main():
                 pygame.display.update(screen.blit(textsurface2,(700,440))) #draw white to fill the last text with white
                 
                 mouse_pos = mouse_pos_to_square(pygame.mouse.get_pos())
-                possible_moves = get_possible_moves(mouse_pos,setup_board(starting_board)[1])
+                possible_moves = get_possible_moves(mouse_pos,current_board,en_passant=current_enpassant)
 
                 draw_chess_board_on_screen(screen,WHITE,LIGHT,DARK,possible_moves) #Draw the board
                 pygame.display.update(all_sprites_list.draw(screen)) #draw all the pieces
