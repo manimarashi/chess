@@ -33,6 +33,10 @@ def setup_board(fen_string):
 def get_possible_moves(position,board,en_passant=None):
     """ Gets a list of all possible moves for the current selected piece """
     possible_moves = []
+    x = position %  8
+    y = position // 8
+    knight_moves = [(1,-2),(2,-1),(2,1),(1,2),(-1,2),(-2,1),(-2,-1),(-1,-2)]
+    
     if board[position] == 'P':
         if (position // 8 == 6) and board[position-8]== None and board[position-16]== None: #The white pawn is in the second rank and there are no pieces on the third or forth rank in front of the pawn
             possible_moves.extend([position-8 , position-16]) #pawn can jump either one or two squares
@@ -51,6 +55,16 @@ def get_possible_moves(position,board,en_passant=None):
             possible_moves.append(position+9)
         if position % 8 > 0  and ( board[position+7] in ['k','q','b','n','r','p'] or position+7 == en_passant): #if there is an opposite piece in the left side diagonal, then the pawn can capture them
             possible_moves.append(position+7)   
+    if board[position] in ['N','n']:
+        for i in knight_moves:
+            if (x + i[0] >= 0 and x + i[0] <= 7 and y + i[1] >= 0 and y + i[1] <= 7) and (board[(y + i[1])*8 + x + i[0]]== None or board[position].isupper() != board[(y + i[1])*8 + x + i[0]].isupper()): #first making sure that the move is within the board and the target position is either empty or is taken by the opposite color
+                possible_moves.append( (y + i[1])*8 + x+i[0])
+    
+    
+    
+    
+    
+    
     return(possible_moves)
 
 
@@ -134,7 +148,6 @@ def main():
                 textsurface = myfont.render( 'Mouse Position: {}'.format(mouse_pos), False, WHITE)
                 # pygame.display.update(textsurface.fill(WHITE))
                 pygame.display.update(screen.blit(textsurface,(700,400)))
-                # mouse_pos = pygame.mouse.get_pos()
                 mouse_pos = mouse_pos_to_square(pygame.mouse.get_pos())
        
         
