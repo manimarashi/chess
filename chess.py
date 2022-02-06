@@ -38,6 +38,7 @@ def get_possible_moves(position,board,en_passant=None):
         return([])
     
     possible_moves = []
+    controlled_squares = []
     x = position %  8
     y = position // 8
     knight_moves = [(1,-2),(2,-1),(2,1),(1,2),(-1,2),(-2,1),(-2,-1),(-1,-2)]
@@ -52,8 +53,10 @@ def get_possible_moves(position,board,en_passant=None):
             possible_moves.append(position-8)
         if position % 8 < 7 and ( board[position-7] in ['k','q','b','n','r','p'] or position-7 == en_passant): #if there is an opposite piece in the right side diagonal, then the pawn can capture them
             possible_moves.append(position-7)
+            controlled_squares.append(position-7)
         if position % 8 > 0  and ( board[position-9] in ['k','q','b','n','r','p'] or position-9 == en_passant): #if there is an opposite piece in the left side diagonal, then the pawn can capture them
             possible_moves.append(position-9)
+            controlled_squares.append(position-9)
     elif board[position] == 'p':
         if (position // 8 == 1) and board[position+8]== None and board[position+16]== None: #The white pawn is in the second rank and there are no pieces on the third or forth rank in front of the pawn
             possible_moves.extend([position+8 , position+16]) #pawn can jump either one or two squares
@@ -61,19 +64,24 @@ def get_possible_moves(position,board,en_passant=None):
             possible_moves.append(position+8)
         if position % 8 < 7 and ( board[position+9] in ['K','Q','B','N','R','P'] or position+9 == en_passant): #if there is an opposite piece in the right side diagonal, then the pawn can capture them
             possible_moves.append(position+9)
+            controlled_squares.append(position+9)
         if position % 8 > 0  and ( board[position+7] in ['K','Q','B','N','R','P'] or position+7 == en_passant): #if there is an opposite piece in the left side diagonal, then the pawn can capture them
-            possible_moves.append(position+7)   
+            possible_moves.append(position+7)
+            controlled_squares.append(position+7)
     elif board[position] in ['N','n']:
         for i in knight_moves:
             if (x + i[0] >= 0 and x + i[0] <= 7 and y + i[1] >= 0 and y + i[1] <= 7) and (board[(y + i[1])*8 + x + i[0]]== None or board[position].isupper() != board[(y + i[1])*8 + x + i[0]].isupper()): #first making sure that the move is within the board and the target position is either empty or is taken by the opposite color
                 possible_moves.append( (y + i[1])*8 + x+i[0])
+                controlled_squares.append( (y + i[1])*8 + x+i[0])
     elif board[position] in ['R','r']:
         for i in rook_moves:
             for j in range(1,8):
                 if (x + i[0]*j >= 0 and x + i[0]*j <= 7 and y + i[1]*j >= 0 and y + i[1]*j <= 7) and (board[(y + i[1]*j)*8 + x + i[0]*j]== None):
                     possible_moves.append((y + i[1]*j)*8 + x+i[0]*j)
+                    controlled_squares.append((y + i[1]*j)*8 + x+i[0]*j)
                 elif (x + i[0]*j >= 0 and x + i[0]*j <= 7 and y + i[1]*j >= 0 and y + i[1]*j <= 7) and (board[position].isupper() != board[(y + i[1]*j)*8 + x + i[0]*j].isupper()):
                     possible_moves.append((y + i[1]*j)*8 + x+i[0]*j)
+                    controlled_squares.append((y + i[1]*j)*8 + x+i[0]*j)
                     break
                 else:
                     break
@@ -82,8 +90,10 @@ def get_possible_moves(position,board,en_passant=None):
             for j in range(1,8):
                 if (x + i[0]*j >= 0 and x + i[0]*j <= 7 and y + i[1]*j >= 0 and y + i[1]*j <= 7) and (board[(y + i[1]*j)*8 + x + i[0]*j]== None):
                     possible_moves.append((y + i[1]*j)*8 + x+i[0]*j)
+                    controlled_squares.append((y + i[1]*j)*8 + x+i[0]*j)
                 elif (x + i[0]*j >= 0 and x + i[0]*j <= 7 and y + i[1]*j >= 0 and y + i[1]*j <= 7) and (board[position].isupper() != board[(y + i[1]*j)*8 + x + i[0]*j].isupper()):
                     possible_moves.append((y + i[1]*j)*8 + x+i[0]*j)
+                    controlled_squares.append((y + i[1]*j)*8 + x+i[0]*j)
                     break
                 else:
                     break               
@@ -92,8 +102,10 @@ def get_possible_moves(position,board,en_passant=None):
             for j in range(1,8):
                 if (x + i[0]*j >= 0 and x + i[0]*j <= 7 and y + i[1]*j >= 0 and y + i[1]*j <= 7) and (board[(y + i[1]*j)*8 + x + i[0]*j]== None):
                     possible_moves.append((y + i[1]*j)*8 + x+i[0]*j)
+                    controlled_squares.append((y + i[1]*j)*8 + x+i[0]*j)
                 elif (x + i[0]*j >= 0 and x + i[0]*j <= 7 and y + i[1]*j >= 0 and y + i[1]*j <= 7) and (board[position].isupper() != board[(y + i[1]*j)*8 + x + i[0]*j].isupper()):
                     possible_moves.append((y + i[1]*j)*8 + x+i[0]*j)
+                    controlled_squares.append((y + i[1]*j)*8 + x+i[0]*j)
                     break
                 else:
                     break         
@@ -101,8 +113,10 @@ def get_possible_moves(position,board,en_passant=None):
         for i in queen_moves:
             if (x + i[0] >= 0 and x + i[0] <= 7 and y + i[1] >= 0 and y + i[1] <= 7) and (board[(y + i[1])*8 + x + i[0]]== None):
                 possible_moves.append((y + i[1])*8 + x+i[0])
+                controlled_squares.append((y + i[1]*j)*8 + x+i[0]*j)
             elif (x + i[0] >= 0 and x + i[0] <= 7 and y + i[1] >= 0 and y + i[1] <= 7) and (board[position].isupper() != board[(y + i[1])*8 + x + i[0]].isupper()):
-                possible_moves.append((y + i[1])*8 + x+i[0])        
+                possible_moves.append((y + i[1])*8 + x+i[0])   
+                controlled_squares.append((y + i[1]*j)*8 + x+i[0]*j)
 
     return(possible_moves)
 
