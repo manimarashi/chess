@@ -30,6 +30,30 @@ def setup_board(fen_string):
     return(spirit_group)
 
 
+def get_possible_moves(position,board,en_passant=None):
+    """ Gets a list of all possible moves for the current selected piece """
+    possible_moves = []
+    if board[position] == 'P':
+        if (position // 8 == 6) and board[position-8]== None and board[position-16]== None: #The white pawn is in the second rank and there are no pieces on the third or forth rank in front of the pawn
+            possible_moves.extend([position-8 , position-16]) #pawn can jump either one or two squares
+        elif board[position-8]== None:
+            possible_moves.append(position-8)
+        if position % 8 < 7 and ( board[position-7] in ['k','q','b','n','r','p'] or position-7 == en_passant): #if there is an opposite piece in the right side diagonal, then the pawn can capture them
+            possible_moves.append(position-7)
+        if position % 8 > 0  and ( board[position-9] in ['k','q','b','n','r','p'] or position-9 == en_passant): #if there is an opposite piece in the left side diagonal, then the pawn can capture them
+            possible_moves.append(position-9)
+    if board[position] == 'p':
+        if (position // 8 == 1) and board[position+8]== None and board[position+16]== None: #The white pawn is in the second rank and there are no pieces on the third or forth rank in front of the pawn
+            possible_moves.extend([position+8 , position+16]) #pawn can jump either one or two squares
+        elif board[position+8]== None:
+            possible_moves.append(position+8)
+        if position % 8 < 7 and ( board[position+9] in ['k','q','b','n','r','p'] or position+9 == en_passant): #if there is an opposite piece in the right side diagonal, then the pawn can capture them
+            possible_moves.append(position+9)
+        if position % 8 > 0  and ( board[position+7] in ['k','q','b','n','r','p'] or position+7 == en_passant): #if there is an opposite piece in the left side diagonal, then the pawn can capture them
+            possible_moves.append(position+7)   
+    return(possible_moves)
+
+
 class Piece(pygame.sprite.Sprite):
     """ This class represents the pieces.It derives from the "Sprite" class in Pygame."""
     def __init__(self,piecetype,position):
@@ -64,7 +88,7 @@ def mouse_pos_to_square(mp):
     if x >= 100 and x <= 100 + SQW*8 and y >= 100 and y <= 100 + SQW*8:
         return ((y-100) // SQW * 8 + (x-100) // SQW)
         
-        
+
         
 def main():
     WHITE = (255,255,255)
