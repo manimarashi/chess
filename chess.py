@@ -38,9 +38,10 @@ def get_possible_moves(position,board,en_passant=None):
         return([])
     
     possible_moves = []
-    controlled_squares = []
+    controlled_squares = [] #used to determine checked status. since pawn's control square is not the same as their possible move list 
     x = position %  8
     y = position // 8
+    pawn_moves = {'P':{'move':[(0,-1),(0,-2)],'control':[(-1,-1),(1,-1)]},'p':{'move':[(0,1),(0,2)],'control':[(-1,1),(1,1)]}}#a bit different structure as pawns can move and control differently
     knight_moves = [(1,-2),(2,-1),(2,1),(1,2),(-1,2),(-2,1),(-2,-1),(-1,-2)]
     rook_moves = [(0,1),(0,-1),(1,0),(-1,0)]
     bishop_moves = [(1,1),(1,-1),(-1,1),(-1,-1)]
@@ -113,10 +114,10 @@ def get_possible_moves(position,board,en_passant=None):
         for i in queen_moves:
             if (x + i[0] >= 0 and x + i[0] <= 7 and y + i[1] >= 0 and y + i[1] <= 7) and (board[(y + i[1])*8 + x + i[0]]== None):
                 possible_moves.append((y + i[1])*8 + x+i[0])
-                controlled_squares.append((y + i[1]*j)*8 + x+i[0]*j)
+                controlled_squares.append((y + i[1])*8 + x+i[0])
             elif (x + i[0] >= 0 and x + i[0] <= 7 and y + i[1] >= 0 and y + i[1] <= 7) and (board[position].isupper() != board[(y + i[1])*8 + x + i[0]].isupper()):
                 possible_moves.append((y + i[1])*8 + x+i[0])   
-                controlled_squares.append((y + i[1]*j)*8 + x+i[0]*j)
+                controlled_squares.append((y + i[1])*8 + x+i[0])
 
     return(possible_moves)
 
