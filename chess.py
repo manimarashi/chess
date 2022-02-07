@@ -1,6 +1,7 @@
 #inspired by : https://www.youtube.com/watch?v=U4ogK0MIzqk&ab_channel=SebastianLague
 
 import pygame, sys, random, time, json
+import numpy as np
 from pygame.locals import *
 
 pieces_file = './Files/Pieces.png' #file with image of pieces
@@ -38,8 +39,25 @@ def setup_board(fen_string):
     
     return(spirit_group,board_list,enpassant,turn,castle)
 
+def controlled_area(board,color):
+    if color=='w':
+        white_controlled = True
+    else:
+        white_controlled = False
+    
+    controlled_squares = []
+    
+    for i in [j for j in range(64) if board[j] if board[j].isupper()==white_controlled]:#if a[j] --> if not None // if board[j].isupper()==white_controlled --> checks for controlled areas by capital letters
+        squares = get_possible_moves(i,board)[1]
+        controlled_squares.extend(squares)
+    
+    controlled_squares = np.unique(controlled_squares)
+    
+    return(controlled_squares)
 
-def get_possible_moves(position,board,en_passant=None):
+
+
+def get_possible_moves(position,board,en_passant=None,possible_castles=None):
     """ Gets a list of all possible moves for the current selected piece """
     
     if position == None:
@@ -122,7 +140,7 @@ def get_possible_moves(position,board,en_passant=None):
                 possible_moves.append((y + i[1])*8 + x+i[0])   
                 controlled_squares.append((y + i[1])*8 + x+i[0])
 
-    return(possible_moves)
+    return(possible_moves,controlled_squares)
 
 
 class Piece(pygame.sprite.Sprite):
@@ -213,7 +231,7 @@ def main():
                 pygame.display.update(screen.blit(textsurface2,(700,440))) #draw white to fill the last text with white
                 
                 mouse_pos = mouse_pos_to_square(pygame.mouse.get_pos())
-                possible_moves = get_possible_moves(mouse_pos,current_board,en_passant=current_enpassant)
+                possible_moves = get_possible_moves(mouse_pos,current_board,en_passant=current_enpassant)[0]
 
                 draw_chess_board_on_screen(screen,WHITE,LIGHT,DARK,possible_moves) #Draw the board
                 pygame.display.update(all_sprites_list.draw(screen)) #draw all the pieces
@@ -223,9 +241,7 @@ def main():
                 pygame.display.update(screen.blit(textsurface,(700,400)))
                 pygame.display.update(screen.blit(textsurface2,(700,440)))
                 
-
-       
-        
+   
     #Exit pygame incase Escape is pressed or pragram stopped
     pygame.quit()
 
